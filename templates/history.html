@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Histórico — Greed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+</head>
+<body>
+    <div class="container">
+        <header style="display:flex;align-items:center;gap:12px;">
+            <h1 style="margin:0;">Histórico — Greed</h1>
+            <div style="margin-left:auto;"><button id="historyBackBtn" class="btn">Voltar</button></div>
+        </header>
+        <div class="panel" style="margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2 style="margin:0">Histórico de Pontuação</h2>
+                <button id="historyClearBtn" class="btn">Limpar</button>
+            </div>
+            <div id="historyList" style="margin-top:12px; min-height:120px;"></div>
+        </div>
+    </div>
+
+<script type="module" src="{{ url_for('static', filename='js/history.js') }}"></script>
+</body>
+</html>
