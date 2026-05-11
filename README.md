@@ -31,48 +31,11 @@ python app.py
 
 Abra no navegador: http://127.0.0.1:5000
 
-## Executar testes
-
-```powershell
-python -m pytest
-```
-
-Os testes usam `pytest` e o diretório `tests/` contém casos para a lógica principal.
-
-## Estrutura do projeto
-
-- `app.py` — entrada do servidor Flask e endpoints API
-- `src/` — lógica do jogo (`game.py`, `player.py`, `ui.py`, wrapper `greed_game.py`)
-- `static/js/` — scripts front-end modulados (`api.js`, `game-ui.js`, `history.js`)
-- `templates/` — páginas HTML (`index.html`, `history.html`)
-- `tests/` — testes automatizados com `pytest`
-
-## Notas de desenvolvimento
-
-- Se fizer alterações em `src/`, rode os testes com `python -m pytest`.
-- Frontend usa ES modules; o servidor serve os arquivos estáticos. Faça hard-refresh ao atualizar `static/js/*`.
-
-
-## Exemplos de requests API
-
-Endpoints principais:
-
-- `POST /api/greed/init` — inicializa um nível
-	- Payload JSON exemplo:
-
-
-- `POST /api/greed/submit` — submete a escolha do jogador
-	- Payload JSON exemplo:
-
-
 
 ## Seção para screenshots
 
-
-```markdown
+![Jogo em andamento](docs/img/screen-game.png)
 ![Tela inicial](docs/img/screen-index.png)
-![Painel do jogo](docs/img/screen-game.png)
-```
 
 
 
