@@ -12,9 +12,9 @@ Conteúdo da Disciplina: Greed (Algoritmo guloso)<br>
 
 ## Vídeo de Apresentação
 ### Link do YouTube 
-link: https://youtu.be/4YBEyfTHQzw
+link: https://youtu.be/xeV7mw-iLIw
 
-[![Assista ao vídeo no YouTube]()
+[![Assista ao vídeo no YouTube](https://img.youtube.com/vi/xeV7mw-iLIw/hqdefault.jpg)](https://youtu.be/xeV7mw-iLIw)
 
 Este repositório contém uma implementação didática do jogo "Greed" (troco). O objetivo é formar um valor usando moedas, comparando sua solução com a solução gulosa e com a solução ótima (quando disponível).
 
