@@ -189,11 +189,10 @@ function renderGreedLevel(level) {
 
     const greedyHint = document.createElement('div');
     greedyHint.style.marginTop = '8px';
-    greedyHint.innerHTML = `<em>Dica: depois de enviar verá a solução gulosa e a ótima (se existir).</em>`;
+    greedyHint.innerHTML = `<em>Dica: depois de enviar verá a comparação com a estratégia gulosa.</em>`;
     greedCoinsContainer.appendChild(greedyHint);
 
     const anim = document.getElementById('greedAnimationContent'); if (anim) anim.innerHTML = '';
-    const opt = document.getElementById('greedOptimalContent'); if (opt) opt.innerHTML = '';
 }
 
 function adjustInput(input, delta){ if (!input) return; let v = parseInt(input.value) || 0; const mx = parseInt(input.max) || 999999; v += delta; if (v < 0) v = 0; if (v > mx) v = mx; input.value = v; input.dispatchEvent(new Event('input')); if (audioEnabled) playClickSound(); }
@@ -233,15 +232,6 @@ async function animateGreedy(speedMs=300){
     if (remaining > 0.0001){ const err = document.createElement('div'); err.style.color='#b03'; err.textContent = 'Gulosa não conseguiu formar o valor com a disponibilidade atual.'; animContainer.appendChild(err); }
     const final = document.createElement('div'); final.style.marginTop='8px'; final.innerHTML = `<strong>Gulosa final:</strong> ${Object.entries(used).map(([k,v])=>`${k}x${v}`).join(', ')}`;
     animContainer.appendChild(final);
-    const optPanel = document.getElementById('greedOptimalContent'); if (optPanel) {
-        optPanel.innerHTML = '';
-        if (greedState.optimal_used){
-            const rows = document.createElement('div'); rows.innerHTML = Object.entries(greedState.optimal_used).map(([k,v])=>`<div>${k} x ${v}</div>`).join('');
-            optPanel.appendChild(rows);
-            const tot = document.createElement('div'); tot.style.marginTop='6px'; tot.innerHTML = `<strong>Ótimo (min moedas):</strong> ${greedState.optimal_total === null ? 'impossível' : greedState.optimal_total}`;
-            optPanel.appendChild(tot);
-        } else { optPanel.textContent = 'Solução ótima indisponível.'; }
-    }
     if (submitBtnEl) submitBtnEl.disabled = false;
 }
 
@@ -294,8 +284,7 @@ async function submitGreed() {
             const timeSec = Math.floor((Date.now() - (greedLevelStart||Date.now()))/1000);
             stopLevelTimer();
             let points = 0;
-            if (r.is_optimal) points = 200 - timeSec;
-            else if (r.player_total <= r.greedy_total) points = 120 - timeSec;
+            if (r.player_total <= r.greedy_total) points = 120 - timeSec;
             else points = 60 - timeSec;
             if (points < 0) points = 0;
             greedScore += points;
@@ -306,14 +295,13 @@ async function submitGreed() {
             let html = '';
             html += `<div><strong>Sua solução:</strong> ${Object.entries(r.player_used).map(([k,v])=>`${k}x${v}`).join(', ')}</div>`;
             html += `<div><strong>Gulosa:</strong> ${Object.entries(r.greedy_used).map(([k,v])=>`${k}x${v}`).join(', ')} — total: ${r.greedy_total === null ? 'impossível' : r.greedy_total}</div>`;
-            html += `<div><strong>Ótima (mín moedas):</strong> ${r.optimal_total === null ? 'impossível' : r.optimal_total}</div>`;
-            html += `<div><strong>É ótima?</strong> ${r.is_optimal ? 'Sim' : 'Não'}</div>`;
+            html += `<div><strong>Igual à gulosa?</strong> ${r.is_greedy ? 'Sim' : 'Não'}</div>`;
             greedResults.innerHTML = html;
             const nextBtn = document.getElementById('greedNextBtn'); if (nextBtn) nextBtn.style.display='inline-block';
             const submitBtnEl = document.getElementById('greedSubmitBtn'); if (submitBtnEl) submitBtnEl.disabled = true;
-            saveHistoryEntry({ ts: Date.now(), level: greedLevelNumber, score: points, totalScore: greedScore, time: timeSec, optimal: r.is_optimal, meta: currentMeta });
+            saveHistoryEntry({ ts: Date.now(), level: greedLevelNumber, score: points, totalScore: greedScore, time: timeSec, is_greedy: !!r.is_greedy, meta: currentMeta });
             renderHistory();
-            if (r.is_optimal){ playConfetti(); playSuccessSound(); } else { if (audioEnabled) playClickSound(); }
+            if (r.is_greedy){ playConfetti(); playSuccessSound(); } else { if (audioEnabled) playClickSound(); }
         } else { alert('Erro ao submeter: ' + (data.error || '')); }
     } catch (err) { console.error('Erro ao submeter troco', err); alert('Erro ao submeter troco'); }
 }
@@ -334,7 +322,7 @@ async function reinitLevelFromState(state) {
 function loadHistory(){ try{ const raw = localStorage.getItem(HISTORY_KEY); return raw ? JSON.parse(raw) : []; }catch(e){return[]} }
 function saveHistory(h){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); }catch(e){} }
 function saveHistoryEntry(entry){ const h = loadHistory(); h.unshift(entry); if (h.length>50) h.pop(); saveHistory(h);} 
-function renderHistory(){ const container = document.getElementById('greedHistoryContent'); if (!container) return; const h = loadHistory(); if (h.length === 0){ container.innerHTML = '<div>Nenhum registro ainda.</div>'; return; } container.innerHTML = h.map(it=>{ const date = new Date(it.ts); const meta = it.meta && it.meta.coins ? ` — Moedas: ${it.meta.coins.join(', ')}` : ''; return `<div style="padding:6px;border-bottom:1px solid #eee">`+`<div><strong>${date.toLocaleString()}</strong>${meta}</div>`+`<div style="font-size:0.95em">Nível ${it.level} — +${it.score} pts — tempo ${it.time}s — total ${it.totalScore} — ${it.optimal? 'Ótima' : 'Não'}</div>`+`</div>`; }).join(''); }
+function renderHistory(){ const container = document.getElementById('greedHistoryContent'); if (!container) return; const h = loadHistory(); if (h.length === 0){ container.innerHTML = '<div>Nenhum registro ainda.</div>'; return; } container.innerHTML = h.map(it=>{ const date = new Date(it.ts); const meta = it.meta && it.meta.coins ? ` — Moedas: ${it.meta.coins.join(', ')}` : ''; return `<div style="padding:6px;border-bottom:1px solid #eee">`+`<div><strong>${date.toLocaleString()}</strong>${meta}</div>`+`<div style="font-size:0.95em">Nível ${it.level} — +${it.score} pts — tempo ${it.time}s — total ${it.totalScore}</div>`+`</div>`; }).join(''); }
 
 function wireHistoryButtons(){ const openBtn = document.getElementById('greedHistoryBtn'); const modal = document.getElementById('greedHistoryModal'); const closeBtn = document.getElementById('greedCloseHistoryBtn'); const clearBtn = document.getElementById('greedClearHistoryBtn'); if (openBtn && modal){ openBtn.onclick = ()=>{ renderHistory(); modal.style.display='flex'; } } if (closeBtn && modal){ closeBtn.onclick = ()=>{ modal.style.display='none'; } } if (clearBtn){ clearBtn.onclick = ()=>{ if (confirm('Limpar todo o histórico?')){ localStorage.removeItem(HISTORY_KEY); renderHistory(); } } } }
 

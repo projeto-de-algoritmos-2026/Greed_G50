@@ -101,24 +101,21 @@ class GreedGame:
             return {"valid": False, "reason": "wrong_sum", "message": f"Soma incorreta: {total_value/100:.2f} != {self.amount/100:.2f}", "total": total_value/100}
         player_total = sum(used[c] for c in self.coins)
         greedy_used, greedy_total = self.greedy_change()
-        optimal_total, optimal_sol = self.optimal_bounded_change()
         def readable(sol):
             return {f"{c/100:.2f}": cnt for c, cnt in sol.items()}
+        is_greedy = (greedy_total is not None and player_total == greedy_total)
         result = {
             "valid": True,
             "player_used": readable(used),
             "player_total": player_total,
             "greedy_used": readable(greedy_used),
             "greedy_total": (None if greedy_total is None else greedy_total),
-            "optimal_total": optimal_total,
-            "optimal_used": readable(optimal_sol),
-            "is_optimal": (optimal_total is not None and player_total == optimal_total),
+            "is_greedy": is_greedy,
         }
         return result
 
     def to_json(self):
         greedy_used, greedy_total = self.greedy_change()
-        optimal_total, optimal_used = self.optimal_bounded_change()
         coins_f = [c / 100.0 for c in self.coins]
         avail_f = {f"{c/100:.2f}": self.available[c] for c in self.coins}
         def readable(sol):
@@ -129,6 +126,4 @@ class GreedGame:
             "available": avail_f,
             "greedy_used": readable(greedy_used),
             "greedy_total": greedy_total,
-            "optimal_total": optimal_total,
-            "optimal_used": readable(optimal_used),
         }
